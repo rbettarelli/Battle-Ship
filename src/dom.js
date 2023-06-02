@@ -93,14 +93,13 @@ function resetBoards() {
   initGame();
 }
 
-
 function renderButtons(player) {
   const boardButttons = document.querySelector(".board-buttons");
   const board1 = document.getElementById("board1");
-  const board2 = document.getElementById("board2");
+  //const board2 = document.getElementById("board2");
 
-  boardButttons.innerHTML = `<button class='main-randon'> Randon board </button>
-    <button class='main-reset'> reset board </button>`;
+  boardButttons.innerHTML = `<button class='main-randon'> Randon Board </button>
+    <button class='main-reset'> Reset Board </button>`;
 
   document.querySelector(".main-reset").addEventListener("click", () => {
     if (!player.turn.get()) return;
@@ -130,6 +129,36 @@ function renderButtons(player) {
     boardButttons.removeChild(document.querySelector(".main-randon"));
   });
   //prevent start when not all ships are placed o the board
+}
+
+async function renderAttackP1(e, pos1, pos2, p1, p2) {
+  document.getElementById("board1").classList.toggle("current-turn");
+  let attack = p1.attack(p2, pos1, pos2);
+  if (!attack) return;
+  if (attack === "miss") e.target.classList.add("miss");
+  if (attack === "hit") {
+    e.target.classList.add("hit");
+    p2.board.board[pos1][pos2].ship.domTargets.push(e.target);
+
+    //stunk
+
+    if (p2.board.board[pos1][pos2].ship.isSunk()) {
+      p1.board.board[pos1][pos2].ship.domTargets.forEach((e) => {
+        e.classList.add("sunk");
+      });
+      return;
+    }
+  }
+  p2.isTurn(p1);
+  await delay(1000);
+  return p2.board.allAreStunk(p2.board.board) === true ? renderWin(p1) : aiPlay(false, p1, p2)}
+
+function delay(delayInMs) {
+  return new Promisse((resolve) => {
+    setTimeout(() => {
+      resolve(2);
+    }, delayInMs);
+  });
 }
 
 export {
