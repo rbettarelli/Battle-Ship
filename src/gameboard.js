@@ -21,15 +21,21 @@ const Gameboard = () => {
     let shipPos = 0;
     if (dir === "h") {
       if (pos2 + ship.length > 10) return false;
+
+      //check if pos is reserved
       for (let i = 0; i < ship.length; i++) {
         if (board[pos1][pos2 + i] === "res") return false;
       }
 
+      
+
       for (let i = pos2; i < pos2 + ship.length; i++) {
         board[pos1].splice(i, 1, { ship, shipPos });
+        reserveAround(pos1, pos2 + shipPos)
         shipPos++;
       }
     }
+
     if (dir === "v") {
       if (pos1 + ship.length > 10) return false;
       for (let i = 0; i < ship.length; i++) {
@@ -37,7 +43,7 @@ const Gameboard = () => {
       }
       for (let i = pos1; i < pos1 + ship.length; i++) {
         board[i].splice(pos2, 1, { ship, shipPos });
-        reserveAround(pos1, pos2 + shipPos);
+        reserveAround(pos1+ shipPos, pos2);
         shipPos++;
       }
     }

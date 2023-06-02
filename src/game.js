@@ -1,5 +1,5 @@
 import {Player} from "./player"
-import { renderBoard, createDragAndDropFleet } from "./dom"
+import { renderBoard, createDragAndDropFleet, renderButtons} from "./dom"
 
 let p1, p2
 
@@ -8,6 +8,7 @@ function initGame() {
     p2 = Player("Enemy")
 
     renderBoard(p1, p2)
+   renderButtons(p1)
     createDragAndDropFleet(p1)
 }
 

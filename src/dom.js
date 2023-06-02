@@ -1,4 +1,5 @@
 import { shipDrag } from "./drag-and-drop";
+import { initGame } from "./game";
 
 function renderBoard(p1, p2) {
   for (let i = 0; i < 10; i++) {
@@ -82,4 +83,58 @@ function renderPlayerFleet(player) {
   });
 }
 
-export { renderBoard, renderPlayerFleet, createDragAndDropFleet };
+function resetBoards() {
+  document.querySelector(".board-buttons").innerHTML = "";
+  document.querySelector(".ships").innerHTML = "";
+  document.querySelectorAll(".board").forEach((board) => {
+    board.innerHTML = "";
+  });
+
+  initGame();
+}
+
+
+function renderButtons(player) {
+  const boardButttons = document.querySelector(".board-buttons");
+  const board1 = document.getElementById("board1");
+  const board2 = document.getElementById("board2");
+
+  boardButttons.innerHTML = `<button class='main-randon'> Randon board </button>
+    <button class='main-reset'> reset board </button>`;
+
+  document.querySelector(".main-reset").addEventListener("click", () => {
+    if (!player.turn.get()) return;
+
+    //reset boars and set´s blur
+    resetBoards(player);
+    board1.classList.add("notStarted");
+  });
+
+  document.querySelector(".main-randon").addEventListener("click", () => {
+    resetBoards();
+    p1.randonFleet();
+    renderPlayerFleet(p1);
+    p1.board.isStartAllowed.set(true);
+    document.querySelector(".ships").innerHTML = "";
+  });
+
+  board1.innerHTML += `<button class="main-start">Start</button>`;
+
+  document.querySelector(".main-start").addEventListener("click", (e) => {
+    if (player.board.isStartAllowed.get() === false) return;
+    //blur toggles before and after start
+    board1.classList.remove("notStarted");
+    player.board.hasStarted.set(true);
+
+    board1.removeChild(e.target);
+    boardButttons.removeChild(document.querySelector(".main-randon"));
+  });
+  //prevent start when not all ships are placed o the board
+}
+
+export {
+  renderBoard,
+  renderPlayerFleet,
+  createDragAndDropFleet,
+  renderButtons,
+};
