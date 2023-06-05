@@ -29,18 +29,20 @@ const Player = (n) => {
 
   // ship with random pos and orietation
 
-  const randomShip = (lenght) => {
+  const randomShip = (length) => {
     let pos1 = generateRandom();
     let pos2 = generateRandom();
     let dir = Math.round(Math.random());
 
-    dir === 0
-      ? ((dir = "h"),
-        board.placeShip(pos1, pos2, length, dir) == false ? false : true)
-      : dir === 1
-      ? ((dir = "v"),
-        board.placeShip(pos1, pos2, length, dir) == false ? false : true)
-      : false;
+    if (dir === 0) {
+      dir = "h";
+      if (board.placeShip(pos1, pos2, length, dir) == false) return false;
+    }
+
+    if (dir === 1) {
+      dir = "v";
+      if (board.placeShip(pos1, pos2, length, dir) == false) return false;
+    }
   };
 
   //create a 8 random ships on board

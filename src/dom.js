@@ -1,5 +1,5 @@
 import { shipDrag } from "./drag-and-drop";
-import { initGame } from "./game";
+import { initGame, p1, p2 } from "./game";
 
 function renderBoard(p1, p2) {
   for (let i = 0; i < 10; i++) {
@@ -13,6 +13,11 @@ function renderBoard(p1, p2) {
       cell.classList.add("cell-p1");
       cell.setAttribute("id", `p1-row${i}-cell${j}`);
       row.appendChild(cell);
+
+      cell.addEventListener("click", (e) => {
+        if (!p1.turn.get() || !p1.board.isStartAllowed.get()) return;
+        renderAttackP1(e, i, j, p1, p2);
+      });
     });
   }
 
@@ -111,7 +116,7 @@ function renderButtons(player) {
 
   document.querySelector(".main-randon").addEventListener("click", () => {
     resetBoards();
-    p1.randonFleet();
+    p1.randomFleet();
     renderPlayerFleet(p1);
     p1.board.isStartAllowed.set(true);
     document.querySelector(".ships").innerHTML = "";
@@ -151,14 +156,51 @@ async function renderAttackP1(e, pos1, pos2, p1, p2) {
   }
   p2.isTurn(p1);
   await delay(1000);
-  return p2.board.allAreStunk(p2.board.board) === true ? renderWin(p1) : aiPlay(false, p1, p2)}
+  return p2.board.allAreStunk(p2.board.board) === true
+    ? renderWin(p1)
+    : aiPlay(false, p1, p2);
+}
 
 function delay(delayInMs) {
-  return new Promisse((resolve) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve(2);
     }, delayInMs);
   });
+}
+
+function renderWin () {
+  
+}
+
+async function renderAttackP2(p1, p2, pos1, pos2) {
+  let isStunk = false;
+  let e = document.getElementById(`p2-row${pos1}-cell${pos2}`);
+  let attack = p2.attack(p1, pos1, pos2);
+
+  if (!attack) {
+    let repeat = true;
+    aiPlay(repeat, p1, p2);
+  }
+  if (attack === "miss") {
+    setWasHit(false);
+    e.classList.add("miss");
+  }
+  if (attack === "hit") {
+    setWasHit(true, true, pos1, pos2);
+    e.classList.add("hit");
+    p1.board.boar[pos1][pos2].ship.domTargets.push(e);
+    //if ship is stunk, add stunk class
+    if (p1.board.board[pos1][pos2].ship.isStunk()) {
+      p1.board.board[pos1][pos2].ship.domTargets.forEach((e) =>
+        e.classList.add("sunk")
+      );
+      isStunk = true;
+      if (p1.board.areAllStunk(p1.board.board) === true) return renderWin(p2);
+    }
+  }
+  await delay(1000);
+  return aiPlay(false, p1, p2, isSunk);
 }
 
 export {
@@ -166,4 +208,6 @@ export {
   renderPlayerFleet,
   createDragAndDropFleet,
   renderButtons,
+  renderAttackP1,
+  renderAttackP2
 };
